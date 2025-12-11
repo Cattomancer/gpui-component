@@ -1,25 +1,55 @@
 use gpui::prelude::FluentBuilder as _;
 use gpui::{
-    div, px, relative, AnyElement, App, DefiniteLength, Edges, EdgesRefinement, Entity,
-    InteractiveElement as _, IntoElement, IsZero, MouseButton, ParentElement as _, Pixels, Rems,
-    RenderOnce, StyleRefinement, Styled, Window,
+    div,
+    px,
+    relative,
+    AnyElement,
+    App,
+    DefiniteLength,
+    Edges,
+    EdgesRefinement,
+    Entity,
+    InteractiveElement as _,
+    IntoElement,
+    IsZero,
+    MouseButton,
+    ParentElement as _,
+    Pixels,
+    Rems,
+    RenderOnce,
+    StyleRefinement,
+    Styled,
+    Window,
 };
 
-use crate::button::{Button, ButtonVariants as _};
+use super::InputState;
+use crate::button::{
+    Button,
+    ButtonVariants as _,
+};
 use crate::input::clear_button;
-use crate::input::element::{LINE_NUMBER_RIGHT_MARGIN, RIGHT_MARGIN};
+use crate::input::element::{
+    LINE_NUMBER_RIGHT_MARGIN,
+    RIGHT_MARGIN,
+};
 use crate::scroll::Scrollbar;
 use crate::spinner::Spinner;
-use crate::{h_flex, Selectable, StyledExt};
-use crate::{v_flex, ActiveTheme};
-use crate::{IconName, Size};
-use crate::{Sizable, StyleSized};
-
-use super::InputState;
+use crate::{
+    h_flex,
+    v_flex,
+    ActiveTheme,
+    IconName,
+    Selectable,
+    Sizable,
+    Size,
+    StyleSized,
+    StyledExt,
+};
 
 /// A text input element bind to an [`InputState`].
 #[derive(IntoElement)]
-pub struct Input {
+pub struct Input
+{
     state: Entity<InputState>,
     style: StyleRefinement,
     size: Size,
@@ -36,27 +66,31 @@ pub struct Input {
     selected: bool,
 }
 
-impl Sizable for Input {
-    fn with_size(mut self, size: impl Into<Size>) -> Self {
+impl Sizable for Input
+{
+    fn with_size(mut self, size: impl Into<Size>) -> Self
+    {
         self.size = size.into();
         self
     }
 }
 
-impl Selectable for Input {
-    fn selected(mut self, selected: bool) -> Self {
+impl Selectable for Input
+{
+    fn selected(mut self, selected: bool) -> Self
+    {
         self.selected = selected;
         self
     }
 
-    fn is_selected(&self) -> bool {
-        self.selected
-    }
+    fn is_selected(&self) -> bool { self.selected }
 }
 
-impl Input {
+impl Input
+{
     /// Create a new [`Input`] element bind to the [`InputState`].
-    pub fn new(state: &Entity<InputState>) -> Self {
+    pub fn new(state: &Entity<InputState>) -> Self
+    {
         Self {
             state: state.clone(),
             size: Size::default(),
@@ -75,71 +109,83 @@ impl Input {
         }
     }
 
-    pub fn prefix(mut self, prefix: impl IntoElement) -> Self {
+    pub fn prefix(mut self, prefix: impl IntoElement) -> Self
+    {
         self.prefix = Some(prefix.into_any_element());
         self
     }
 
-    pub fn suffix(mut self, suffix: impl IntoElement) -> Self {
+    pub fn suffix(mut self, suffix: impl IntoElement) -> Self
+    {
         self.suffix = Some(suffix.into_any_element());
         self
     }
 
     /// Set full height of the input (Multi-line only).
-    pub fn h_full(mut self) -> Self {
+    pub fn h_full(mut self) -> Self
+    {
         self.height = Some(relative(1.));
         self
     }
 
     /// Set height of the input (Multi-line only).
-    pub fn h(mut self, height: impl Into<DefiniteLength>) -> Self {
+    pub fn h(mut self, height: impl Into<DefiniteLength>) -> Self
+    {
         self.height = Some(height.into());
         self
     }
 
     /// Set the appearance of the input field, if false the input field will no border, background.
-    pub fn appearance(mut self, appearance: bool) -> Self {
+    pub fn appearance(mut self, appearance: bool) -> Self
+    {
         self.appearance = appearance;
         self
     }
 
     /// Set the bordered for the input, default: true
-    pub fn bordered(mut self, bordered: bool) -> Self {
+    pub fn bordered(mut self, bordered: bool) -> Self
+    {
         self.bordered = bordered;
         self
     }
 
     /// Set focus border for the input, default is true.
-    pub fn focus_bordered(mut self, bordered: bool) -> Self {
+    pub fn focus_bordered(mut self, bordered: bool) -> Self
+    {
         self.focus_bordered = bordered;
         self
     }
 
     /// Set whether to show the clear button when the input field is not empty, default is false.
-    pub fn cleanable(mut self, cleanable: bool) -> Self {
+    pub fn cleanable(mut self, cleanable: bool) -> Self
+    {
         self.cleanable = cleanable;
         self
     }
 
     /// Set to enable toggle button for password mask state.
-    pub fn mask_toggle(mut self) -> Self {
+    pub fn mask_toggle(mut self) -> Self
+    {
         self.mask_toggle = true;
         self
     }
 
     /// Set to disable the input field.
-    pub fn disabled(mut self, disabled: bool) -> Self {
+    pub fn disabled(mut self, disabled: bool) -> Self
+    {
         self.disabled = disabled;
         self
     }
 
     /// Set the tab index for the input, default is 0.
-    pub fn tab_index(mut self, index: isize) -> Self {
+    pub fn tab_index(mut self, index: isize) -> Self
+    {
         self.tab_index = index;
         self
     }
 
-    fn render_toggle_mask_button(state: Entity<InputState>) -> impl IntoElement {
+    fn render_toggle_mask_button(state: Entity<InputState>) -> impl IntoElement
+    {
         Button::new("toggle-mask")
             .icon(IconName::Eye)
             .xsmall()
@@ -170,7 +216,8 @@ impl Input {
         state: &InputState,
         window: &Window,
         _cx: &App,
-    ) -> impl IntoElement {
+    ) -> impl IntoElement
+    {
         let base_size = window.text_style().font_size;
         let rem_size = window.rem_size();
 
@@ -199,10 +246,14 @@ impl Input {
             .size_full()
             .children(state.search_panel.clone())
             .child(div().flex_1().child(input_state.clone()).map(|this| {
-                if let Some(last_layout) = state.last_layout.as_ref() {
-                    let left = if last_layout.line_number_width.is_zero() {
+                if let Some(last_layout) = state.last_layout.as_ref()
+                {
+                    let left = if last_layout.line_number_width.is_zero()
+                    {
                         px(0.)
-                    } else {
+                    }
+                    else
+                    {
                         // Align left edge to the Line number.
                         paddings.left + last_layout.line_number_width - LINE_NUMBER_RIGHT_MARGIN
                     };
@@ -212,9 +263,12 @@ impl Input {
                         height: state.scroll_size.height,
                     };
 
-                    let scrollbar = if !state.soft_wrap {
+                    let scrollbar = if !state.soft_wrap
+                    {
                         Scrollbar::both(&state.scroll_state, &state.scroll_handle)
-                    } else {
+                    }
+                    else
+                    {
                         Scrollbar::vertical(&state.scroll_state, &state.scroll_handle)
                     };
 
@@ -227,21 +281,24 @@ impl Input {
                             .bottom(-paddings.bottom + MIN_SCROLL_PADDING)
                             .child(scrollbar.scroll_size(scroll_size)),
                     )
-                } else {
+                }
+                else
+                {
                     this
                 }
             }))
     }
 }
 
-impl Styled for Input {
-    fn style(&mut self) -> &mut StyleRefinement {
-        &mut self.style
-    }
+impl Styled for Input
+{
+    fn style(&mut self) -> &mut StyleRefinement { &mut self.style }
 }
 
-impl RenderOnce for Input {
-    fn render(self, window: &mut Window, cx: &mut App) -> impl IntoElement {
+impl RenderOnce for Input
+{
+    fn render(self, window: &mut Window, cx: &mut App) -> impl IntoElement
+    {
         const LINE_HEIGHT: Rems = Rems(1.25);
         let font = window.text_style().font();
         let font_size = window.text_style().font_size.to_pixels(window.rem_size());
@@ -254,18 +311,25 @@ impl RenderOnce for Input {
 
         let state = self.state.read(cx);
         let focused = state.focus_handle.is_focused(window);
-        let gap_x = match self.size {
+        let gap_x = match self.size
+        {
             Size::Small => px(4.),
             Size::Large => px(8.),
             _ => px(4.),
         };
 
-        let bg = if state.disabled {
+        let bg = if state.disabled
+        {
             cx.theme().muted
-        } else {
-            if state.mode.is_code_editor() {
+        }
+        else
+        {
+            if state.mode.is_code_editor()
+            {
                 cx.theme().editor_background()
-            } else {
+            }
+            else
+            {
                 cx.theme().background
             }
         };
@@ -358,12 +422,12 @@ impl RenderOnce for Input {
             .on_mouse_move(window.listener_for(&self.state, InputState::on_mouse_move))
             .on_scroll_wheel(window.listener_for(&self.state, InputState::on_scroll_wheel))
             .size_full()
-            .line_height(LINE_HEIGHT)
-            .input_px(self.size)
-            .input_py(self.size)
-            .input_h(self.size)
+            //.line_height(LINE_HEIGHT)
+            //.input_px(self.size)
+            //.input_py(self.size)
+            //.input_h(self.size)
             .cursor_text()
-            .text_size(font_size)
+            //.text_size(font_size)
             .items_center()
             .when(state.mode.is_multi_line(), |this| {
                 this.h_auto()
@@ -382,7 +446,7 @@ impl RenderOnce for Input {
                     })
             })
             .items_center()
-            .gap(gap_x)
+            //.gap(gap_x)
             .refine_style(&self.style)
             .children(prefix)
             .when(state.mode.is_multi_line(), |mut this| {
