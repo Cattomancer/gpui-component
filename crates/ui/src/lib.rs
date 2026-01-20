@@ -1,5 +1,9 @@
-use gpui::{App, SharedString};
 use std::ops::Deref;
+
+use gpui::{
+    App,
+    SharedString,
+};
 
 mod event;
 mod global_state;
@@ -23,7 +27,6 @@ pub mod avatar;
 pub mod badge;
 pub mod breadcrumb;
 pub mod button;
-pub mod chart;
 pub mod checkbox;
 pub mod clipboard;
 pub mod collapsible;
@@ -43,7 +46,6 @@ pub mod link;
 pub mod list;
 pub mod menu;
 pub mod notification;
-pub mod plot;
 pub mod popover;
 pub mod progress;
 pub mod radio;
@@ -63,35 +65,55 @@ pub mod text;
 pub mod theme;
 pub mod tooltip;
 pub mod tree;
-pub use time::{calendar, date_picker};
+pub use time::{
+    calendar,
+    date_picker,
+};
 
 #[cfg(feature = "webview")]
 pub mod webview;
 
 // re-export
+pub use event::InteractiveElementExt;
+pub use icon::*;
+pub use index_path::IndexPath;
+pub use input::{
+    Rope,
+    RopeExt,
+    RopeLines,
+};
+#[cfg(any(feature = "inspector", debug_assertions))]
+pub use inspector::*;
+pub use root::{
+    Root,
+    WindowExt,
+};
+pub use styled::*;
+pub use theme::*;
+pub use title_bar::*;
+pub use virtual_list::{
+    h_virtual_list,
+    v_virtual_list,
+    VirtualList,
+    VirtualListScrollHandle,
+};
+pub use window_border::{
+    window_border,
+    window_paddings,
+    WindowBorder,
+};
 #[cfg(feature = "webview")]
 pub use wry;
 
 pub use crate::Disableable;
-pub use event::InteractiveElementExt;
-pub use icon::*;
-pub use index_path::IndexPath;
-pub use input::{Rope, RopeExt, RopeLines};
-#[cfg(any(feature = "inspector", debug_assertions))]
-pub use inspector::*;
-pub use root::{Root, WindowExt};
-pub use styled::*;
-pub use theme::*;
-pub use title_bar::*;
-pub use virtual_list::{h_virtual_list, v_virtual_list, VirtualList, VirtualListScrollHandle};
-pub use window_border::{window_border, window_paddings, WindowBorder};
 
 rust_i18n::i18n!("locales", fallback = "en");
 
 /// Initialize the components.
 ///
 /// You must initialize the components at your application's entry point.
-pub fn init(cx: &mut App) {
+pub fn init(cx: &mut App)
+{
     theme::init(cx);
     global_state::init(cx);
     #[cfg(any(feature = "inspector", debug_assertions))]
@@ -113,17 +135,14 @@ pub fn init(cx: &mut App) {
 }
 
 #[inline]
-pub fn locale() -> impl Deref<Target = str> {
-    rust_i18n::locale()
-}
+pub fn locale() -> impl Deref<Target = str> { rust_i18n::locale() }
 
 #[inline]
-pub fn set_locale(locale: &str) {
-    rust_i18n::set_locale(locale)
-}
+pub fn set_locale(locale: &str) { rust_i18n::set_locale(locale) }
 
 #[inline]
-pub(crate) fn measure_enable() -> bool {
+pub(crate) fn measure_enable() -> bool
+{
     std::env::var("ZED_MEASUREMENTS").is_ok() || std::env::var("GPUI_MEASUREMENTS").is_ok()
 }
 
@@ -132,12 +151,16 @@ pub(crate) fn measure_enable() -> bool {
 /// And need env `GPUI_MEASUREMENTS=1`
 #[inline]
 #[track_caller]
-pub fn measure_if(name: impl Into<SharedString>, if_: bool, f: impl FnOnce()) {
-    if if_ && measure_enable() {
+pub fn measure_if(name: impl Into<SharedString>, if_: bool, f: impl FnOnce())
+{
+    if if_ && measure_enable()
+    {
         let measure = Measure::new(name);
         f();
         measure.end();
-    } else {
+    }
+    else
+    {
         f();
     }
 }
@@ -145,18 +168,19 @@ pub fn measure_if(name: impl Into<SharedString>, if_: bool, f: impl FnOnce()) {
 /// Measures the execution time.
 #[inline]
 #[track_caller]
-pub fn measure(name: impl Into<SharedString>, f: impl FnOnce()) {
-    measure_if(name, true, f);
-}
+pub fn measure(name: impl Into<SharedString>, f: impl FnOnce()) { measure_if(name, true, f); }
 
-pub struct Measure {
+pub struct Measure
+{
     name: SharedString,
     start: std::time::Instant,
 }
 
-impl Measure {
+impl Measure
+{
     #[track_caller]
-    pub fn new(name: impl Into<SharedString>) -> Self {
+    pub fn new(name: impl Into<SharedString>) -> Self
+    {
         Self {
             name: name.into(),
             start: std::time::Instant::now(),
@@ -164,7 +188,8 @@ impl Measure {
     }
 
     #[track_caller]
-    pub fn end(self) {
+    pub fn end(self)
+    {
         let duration = self.start.elapsed();
         tracing::trace!("{} in {:?}", self.name, duration);
     }
